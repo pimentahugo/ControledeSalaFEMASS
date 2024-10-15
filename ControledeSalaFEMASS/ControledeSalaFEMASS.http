@@ -1,0 +1,6 @@
+@ControledeSalaFEMASS_HostAddress = http://localhost:5296
+
+GET {{ControledeSalaFEMASS_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
