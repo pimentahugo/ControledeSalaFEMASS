@@ -53,8 +53,8 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
                     CodigoTurma = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: false),
                     Professor = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     DisciplinaId = table.Column<int>(type: "int", nullable: false),
-                    QuantidadeAlunos = table.Column<int>(type: "int", nullable: false),
-                    CodigoHorario = table.Column<int>(type: "int", nullable: false)
+                    QuantidadeAlunos = table.Column<int>(type: "int", nullable: true),
+                    CodigoHorario = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -75,7 +75,7 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SalaId = table.Column<int>(type: "int", nullable: false),
                     DiaSemana = table.Column<int>(type: "int", nullable: false),
-                    CodigoHorario = table.Column<int>(type: "int", nullable: false)
+                    Tempo = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -95,7 +95,9 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SalaId = table.Column<int>(type: "int", nullable: false),
-                    TurmaId = table.Column<int>(type: "int", nullable: false)
+                    TurmaId = table.Column<int>(type: "int", nullable: false),
+                    DiaSemana = table.Column<int>(type: "int", nullable: false),
+                    Tempo = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
