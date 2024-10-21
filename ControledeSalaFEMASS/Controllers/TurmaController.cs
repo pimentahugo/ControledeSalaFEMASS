@@ -1,10 +1,11 @@
 ﻿using ControledeSalaFEMASS.Application.Commands.Importacao.Turma;
+using ControledeSalaFEMASS.Application.Commands.Turmas.AlocarSala;
+using ControledeSalaFEMASS.Application.Commands.Turmas.DeletarAlocacao;
+using ControledeSalaFEMASS.Application.Queries.Turma.GetAll;
+using ControledeSalaFEMASS.Application.Queries.Turma.GetTurmaById;
 using ControledeSalaFEMASS.Application.Queries.Turma.ObterSalasDisponiveis;
-using ControledeSalaFEMASS.Application.Queries.Turma.ObterTurmas;
-using ControledeSalaFEMASS.Domain.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using OfficeOpenXml;
 
 namespace ControledeSalaFEMASS.Controllers;
 
@@ -22,49 +23,52 @@ public class TurmaController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> ObterTurmas()
     {
-        var query = new ObterTurmasQuery();
+        var query = new GetAllTurmasQuery();
         var response = await _mediator.Send(query);
 
         return Ok(response);
     }
 
-    [HttpGet("obter-salas-disponiveis/{turmaId}")]
-    public async Task<IActionResult> ObterSalasDisponiveis(int turmaId)
+    [HttpGet("{turmaId}")]
+    public async Task<IActionResult> ObterTurmaPorId(int turmaId)
     {
-        var query = new ObterSalasDisponiveisQuery() { TurmaId = turmaId };
+        var query = new GetTurmaByIdQuery() { TurmaId = turmaId};
+        var response = await _mediator.Send(query);
+
+        return Ok(response);
+    }
+
+    [HttpGet("obter-salas-disponiveis/")]
+    public async Task<IActionResult> ObterSalasDisponiveis(
+        [FromQuery] ObterSalasDisponiveisQuery queryParams)
+    {
+        var query = queryParams;
 
         var response = await _mediator.Send(query);
         return Ok(response);
+    }
+
+    [HttpPost("alocar-turma")]
+    public async Task<IActionResult> AlocarTurmaSala(
+        [FromBody] AlocarTurmaSalaCommand request)
+    {
+        var response = await _mediator.Send(request);
+
+        return Created("", response);
+    }
+
+    [HttpDelete("deletar-alocacao/{alocacaoId}")]
+    public async Task<IActionResult> DeletarAlocacaoTurma(int alocacaoId)
+    {
+        var request = new DeletarAlocacaoTurmaCommand() { AlocacaoId = alocacaoId };
+        await _mediator.Send(request);
+        return Accepted();
     }
 
     [HttpPost("importar-excel-turmas")]
     public async Task<IActionResult> ImportarExcel(IFormFile file)
     {
-        if (file == null || file.Length == 0)
-            return BadRequest("Arquivo não fornecido ou vazio");
-
-        using var stream = new MemoryStream();
-        await file.CopyToAsync(stream);
-        stream.Position = 0;
-
-        using var package = new ExcelPackage(stream);
-        var worksheet = package.Workbook.Worksheets[0];
-
-        var turmas = new List<TurmaImportadaDto>();
-
-        for (int row = 2; row <= worksheet.Dimension.End.Row; row++) 
-        {
-            turmas.Add(new TurmaImportadaDto
-            {
-                CodigoTurma = worksheet.Cells[row, 1].Text,
-                Professor = worksheet.Cells[row, 2].Text,
-                Disciplina = worksheet.Cells[row, 3].Text,
-                QuantidadeAlunos = int.TryParse(worksheet.Cells[row, 4].Text, out int temp) ? temp : 0,
-                CodigoHorario = int.TryParse(worksheet.Cells[row, 5].Text, out int temp2) ? temp2 : 0,
-            });
-        }
-
-        var command = new ImportarTurmasCommand { Turmas = turmas };
+        var command = new ImportarTurmasCommand { FileExcel = file };
         await _mediator.Send(command);
 
         return Accepted();

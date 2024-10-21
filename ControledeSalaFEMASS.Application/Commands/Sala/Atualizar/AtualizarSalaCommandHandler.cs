@@ -1,57 +1,38 @@
 ﻿using AutoMapper;
-using ControledeSalaFEMASS.Application.Commands.Sala.Criar;
 using ControledeSalaFEMASS.Domain.Exceptions;
-using ControledeSalaFEMASS.Infrastructure.DataAccess;
+using ControledeSalaFEMASS.Domain.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace ControledeSalaFEMASS.Application.Commands.Sala.Atualizar;
 public class AtualizarSalaCommandHandler : IRequestHandler<AtualizarSalaCommand>
 {
-    private readonly AppDbContext _context;
+    private readonly ISalaRepository _context;
     private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AtualizarSalaCommandHandler(AppDbContext context, IMapper mapper)
+    public AtualizarSalaCommandHandler(
+        ISalaRepository context, 
+        IUnitOfWork unitOfWork,
+        IMapper mapper)
     {
         _context = context;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
     public async Task Handle(AtualizarSalaCommand request, CancellationToken cancellationToken)
-    {
-        await Validate(request);
-        
-        var sala = await _context.Salas.FindAsync(request.Id);
+    {  
+        var sala = await _context.GetById(request.Id);
 
-        if (sala == null)
+        if (sala is null)
         {
             throw new NotFoundException("Sala não encontrada na base de dados");
         }
 
-        sala = _mapper.Map<Domain.Entities.Sala>(request);
+        _mapper.Map(request, sala);
 
-        _context.Salas.Update(sala);
+        _context.Update(sala);
 
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-    private async Task Validate(AtualizarSalaCommand request)
-    {
-        var validator = new AtualizarSalaCommandValidator();
-
-        var result = validator.Validate(request);
-
-        var existeSala = await _context.Salas.AnyAsync(p => p.Id != request.Id &&
-            p.Bloco.Equals(request.Bloco) &&
-            p.Numero.Equals(request.Numero));
-
-        if (existeSala)
-        {
-            result.Errors.Add(new FluentValidation.Results.ValidationFailure("", "Já existe uma sala cadastrada com esse bloco e número"));
-        }
-
-        if (!result.IsValid)
-        {
-            throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
-        }
+        await _unitOfWork.Commit();
     }
 }

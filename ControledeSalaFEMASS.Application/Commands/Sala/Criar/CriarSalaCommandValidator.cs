@@ -2,7 +2,7 @@
 using FluentValidation;
 
 namespace ControledeSalaFEMASS.Application.Commands.Sala.Criar;
-public class CriarSalaCommandValidator : AbstractValidator<CriarSalaCommand>
+public class CriarSalaCommandValidator : SalaCommandBaseValidator<CriarSalaCommand>
 {
     public CriarSalaCommandValidator()
     {
@@ -13,7 +13,5 @@ public class CriarSalaCommandValidator : AbstractValidator<CriarSalaCommand>
         {
             RuleFor(p => p.Bloco).Matches("^[A-Z]$").WithMessage("Bloco deve ser uma letra de A a Z.");
         });
-
-        RuleFor(p => p.CapacidadeMaxima).GreaterThan(0).WithMessage("O valor de capacidade máxima deve ser maior que 0");
     }
 }

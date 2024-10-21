@@ -1,34 +1,37 @@
 ﻿using AutoMapper;
+using ControledeSalaFEMASS.Application.Queries.Sala.ObterPorId;
 using ControledeSalaFEMASS.Domain.Dtos;
 using ControledeSalaFEMASS.Domain.Exceptions;
-using ControledeSalaFEMASS.Infrastructure.DataAccess;
+using ControledeSalaFEMASS.Domain.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace ControledeSalaFEMASS.Application.Commands.Sala.Criar;
-public class CriarSalaCommandHandler : IRequestHandler<CriarSalaCommand, SalaDto>
+public class CriarSalaCommandHandler : IRequestHandler<CriarSalaCommand, GetSalaByIdResponse>
 {
-    private readonly AppDbContext _context;
+    private readonly ISalaRepository _context;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
     public CriarSalaCommandHandler(
-        AppDbContext context,
+        ISalaRepository context,
+        IUnitOfWork unitOfWork,
         IMapper mapper)
     {
         _context = context;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
-    public async Task<SalaDto> Handle(CriarSalaCommand request, CancellationToken cancellationToken)
+    public async Task<GetSalaByIdResponse> Handle(CriarSalaCommand request, CancellationToken cancellationToken)
     {
         await Validate(request);
 
         var sala = _mapper.Map<Domain.Entities.Sala>(request);
 
-        _context.Salas.Add(sala);
-        await _context.SaveChangesAsync();
+        await _context.Add(sala);
+        await _unitOfWork.Commit();
 
-        return _mapper.Map<SalaDto>(sala);
+        return _mapper.Map<GetSalaByIdResponse>(sala);
     }
 
     private async Task Validate(CriarSalaCommand request)
@@ -37,7 +40,7 @@ public class CriarSalaCommandHandler : IRequestHandler<CriarSalaCommand, SalaDto
 
         var result = validator.Validate(request);
 
-        var existeSala = await _context.Salas.AnyAsync(p => p.Bloco.Equals(request.Bloco) && p.Numero.Equals(request.Numero));
+        var existeSala = await _context.ExistsSalaWithBlocoAndNumber(request.Bloco, request.Numero);
 
         if (existeSala)
         {

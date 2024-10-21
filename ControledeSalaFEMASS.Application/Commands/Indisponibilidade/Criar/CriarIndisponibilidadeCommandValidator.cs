@@ -10,6 +10,6 @@ public class CriarIndisponibilidadeCommandValidator : AbstractValidator<CriarInd
                     .Must(dia => dia >= DayOfWeek.Monday && dia <= DayOfWeek.Friday)
                     .WithMessage("O dia da semana deve ser entre segunda-feira e sexta.");
 
-        RuleFor(p => p.CodigoHorario).InclusiveBetween(1, 3).WithMessage("O código horário deve estar entre 1 e 3");
+        RuleFor(p => p.Tempo).IsInEnum().WithMessage("O código horário não é valido. O valor deve estar entre 1 e 3");
     }
 }

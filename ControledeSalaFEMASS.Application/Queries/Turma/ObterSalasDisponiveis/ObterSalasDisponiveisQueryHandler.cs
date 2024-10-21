@@ -1,70 +1,54 @@
-﻿using ControledeSalaFEMASS.Infrastructure.DataAccess;
+﻿using AutoMapper;
+using ControledeSalaFEMASS.Application.Queries.Sala.GetAll;
+using ControledeSalaFEMASS.Domain.Dtos;
+using ControledeSalaFEMASS.Domain.Enums;
+using ControledeSalaFEMASS.Domain.Exceptions;
+using ControledeSalaFEMASS.Domain.Repositories;
+using ControledeSalaFEMASS.Domain.Services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace ControledeSalaFEMASS.Application.Queries.Turma.ObterSalasDisponiveis;
-public class ObterSalasDisponiveisQueryHandler : IRequestHandler<ObterSalasDisponiveisQuery, List<Domain.Entities.Sala>>
+public class ObterSalasDisponiveisQueryHandler : IRequestHandler<ObterSalasDisponiveisQuery, List<GetAllSalasResponse>>
 {
-    private readonly AppDbContext _context;
+    private readonly ITurmaRepository _turmaRepository;
+    private readonly ISalaRepository _salaRepository;
+    private readonly IMapper _mapper;
 
-    public ObterSalasDisponiveisQueryHandler(AppDbContext context)
+    public ObterSalasDisponiveisQueryHandler(
+        ITurmaRepository turmaRepository, 
+        ISalaRepository salaRepository, 
+        IMapper mapper)
     {
-        _context = context;
+        _turmaRepository = turmaRepository;
+        _salaRepository = salaRepository;
+        _mapper = mapper;
     }
 
-    public async Task<List<Domain.Entities.Sala>> Handle(ObterSalasDisponiveisQuery request, CancellationToken cancellationToken)
+    public async Task<List<GetAllSalasResponse>> Handle(ObterSalasDisponiveisQuery request, CancellationToken cancellationToken)
     {
-        var turma = await _context.Turmas.FindAsync(request.TurmaId);
+        var turma = await _turmaRepository.GetById(request.TurmaId);
 
         if (turma == null || !turma.CodigoHorario.HasValue)
         {
-            throw new Exception("Turma não encontrada ou turma sem código de horário");
+            throw new NotFoundException("Turma não encontrada ou turma sem código de horário");
         }
 
-        var disciplina = await _context.Disciplinas.FindAsync(turma.DisciplinaId);
+        var horariosDisciplina = HorariosDisciplinasService.ObterHorariosDisciplina(turma.DisciplinaId);
 
-        if (disciplina == null)
-        {
-            throw new Exception("Disciplina não encontrada");
-        }
+        Validate(request, horariosDisciplina);
 
-        var diaSemana = ObterDiaSemana(turma.CodigoHorario.Value);
+        var requestSalasDisponiveis = new GetSalasDisponiveisDto(turma, request.DiaSemana, request.TempoAula);
 
-        var salasDisponiveis = await _context.Salas
-            .Include(sala => sala.Indisponibilidades)
-            .Include(sala => sala.Alocacoes)
-            .Where(s => s.CapacidadeMaxima >= turma.QuantidadeAlunos &&
-                    (!disciplina.NecessitaLaboratorio || s.PossuiLaboratorio) &&
-                    (!disciplina.NecessitaArCondicionado || s.PossuiArCondicionado) &&
-                    (!disciplina.NecessitaLoucaDigital || s.PossuiLoucaDigital) &&
-                    (!s.Indisponibilidades.Any(i => i.DiaSemana == diaSemana && i.CodigoHorario == ObterCodigoHorarioIndisponibilidade(turma.CodigoHorario.Value))) &&
-                    (!s.Alocacoes.Any(a => a.Turma.CodigoHorario == turma.CodigoHorario))).ToListAsync();
+        var salasDisponiveis = await _salaRepository.GetSalasDisponiveisParaAlocacao(requestSalasDisponiveis);
 
-        return salasDisponiveis;
+        return _mapper.Map<List<GetAllSalasResponse>>(salasDisponiveis);
     }
 
-    private DayOfWeek ObterDiaSemana(int codigoHorarioDisciplina)
+    private void Validate(ObterSalasDisponiveisQuery request, List<(DayOfWeek Dia, TempoSala Tempo)> horariosDisciplina)
     {
-        if(codigoHorarioDisciplina == 1 || codigoHorarioDisciplina == 2)
+        if(!horariosDisciplina.Exists(h => h.Tempo == request.TempoAula && h.Dia == request.DiaSemana))
         {
-            return DayOfWeek.Sunday;
+            throw new OperationInvalidException("A disciplina informada não possui aula no horário informado.");
         }
-
-        if(codigoHorarioDisciplina == 3)
-        {
-            return DayOfWeek.Tuesday;
-        }
-
-        if(codigoHorarioDisciplina == 4)
-        {
-            return DayOfWeek.Wednesday;
-        }
-
-        return DayOfWeek.Thursday;
-    }
-
-    private int ObterCodigoHorarioIndisponibilidade(int codigoHorarioDisciplina)
-    {
-        throw new NotImplementedException();
     }
 }

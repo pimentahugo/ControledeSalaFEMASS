@@ -2,9 +2,8 @@
 using ControledeSalaFEMASS.Application.Commands.Indisponibilidade.Excluir;
 using ControledeSalaFEMASS.Application.Commands.Sala.Atualizar;
 using ControledeSalaFEMASS.Application.Commands.Sala.Criar;
+using ControledeSalaFEMASS.Application.Queries.Sala.GetAll;
 using ControledeSalaFEMASS.Application.Queries.Sala.ObterPorId;
-using ControledeSalaFEMASS.Application.Queries.Sala.ObterTodas;
-using ControledeSalaFEMASS.Domain.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,30 +21,30 @@ public class SalaController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<SalaDto>>> ListarSalas()
+    public async Task<IActionResult> ListarSalas()
     {
-        var query = new ObterTodasSalasQuery();
+        var query = new GetAllSalasQuery();
         var salas = await _mediator.Send(query);
-        return salas;
+
+        return Ok(salas);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<SalaDto>> ObterSala(int id)
+    public async Task<IActionResult> ObterSala(int id)
     {
-        var query = new ObterSalaPorIdQuery { Id = id };
+        var query = new GetSalaByIdQuery { Id = id };
+
         var sala = await _mediator.Send(query);
 
-        if (sala is null)
-            return NotFound();
-
-        return sala!;
+        return Ok(sala);
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> CriarSala([FromBody] CriarSalaCommand command)
+    public async Task<IActionResult> CriarSala([FromBody] CriarSalaCommand command)
     {
-        var id = await _mediator.Send(command);
-        return Created("", id);
+        var response = await _mediator.Send(command);
+
+        return Created("", response);
     }
 
     [HttpPut("{id}")]

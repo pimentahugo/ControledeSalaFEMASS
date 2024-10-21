@@ -16,10 +16,10 @@ public class ExceptionFilter : IExceptionFilter
             ThrowUnkownException(context);
         }
     }
-    private static void HandleProjectException(AppException myRecipeBookException, ExceptionContext context)
+    private static void HandleProjectException(AppException exception, ExceptionContext context)
     {
-        context.HttpContext.Response.StatusCode = (int)myRecipeBookException.GetStatusCode();
-        context.Result = new ObjectResult(new ErrorDto(myRecipeBookException.GetErrorMessages()));
+        context.HttpContext.Response.StatusCode = (int)exception.GetStatusCode();
+        context.Result = new ObjectResult(new ErrorDto(exception.GetErrorMessages()));
     }
 
     private static void ThrowUnkownException(ExceptionContext context)
