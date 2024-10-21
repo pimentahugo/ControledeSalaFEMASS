@@ -29,7 +29,7 @@ public static class DependencyInjectionExtension
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssemblies(handlers);
-            //cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
         services.AddValidatorsFromAssemblies(new[] { Assembly.Load("ControledeSalaFEMASS.Application") });
