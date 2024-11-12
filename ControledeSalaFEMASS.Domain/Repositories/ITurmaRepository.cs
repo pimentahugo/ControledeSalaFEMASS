@@ -12,4 +12,5 @@ public interface ITurmaRepository
     Task Add(Turma turma);
     Task AddRange(List<Turma> turmas);
     void Update(Turma turma);
+    void LimparSemestre();
 }

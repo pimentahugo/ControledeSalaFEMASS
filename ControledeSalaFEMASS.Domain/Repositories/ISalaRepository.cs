@@ -10,6 +10,7 @@ public interface ISalaRepository
     Task Add(Sala sala);
     Task AddAlocacao(AlocacaoSala alocacaoSala);
     void DeleteAlocacao(AlocacaoSala alocacao);
+    void DeleteAlocacoes(List<AlocacaoSala> alocacoes);
     Task<bool> ExistsSalaWithBlocoAndNumber(string bloco, long numero);
     void Update(Sala sala);
 }

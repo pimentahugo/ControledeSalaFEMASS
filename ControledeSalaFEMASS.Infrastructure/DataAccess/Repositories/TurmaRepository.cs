@@ -51,4 +51,30 @@ internal class TurmaRepository : ITurmaRepository
     {
         await _context.Turmas.AddRangeAsync(turmas);
     }
+
+    public async Task<bool> ExistsTurmaAgrupada()
+    {
+        return await _context.Turmas.GroupBy(t => new { t.Professor, t.CodigoHorario }).AnyAsync(g => g.Count() > 1);
+    }
+
+    public async Task<IList<Turma>> GetTurmasAgrupadas()
+    {
+        var turmas = await GetAll();
+
+        var resultado = turmas
+        .GroupBy(t => new { t.Professor, t.CodigoHorario })
+        .Where(g => g.Count() > 1)
+        .SelectMany(g => g)
+        .OrderBy(t => t.Professor)
+        .ThenByDescending(t => t.QuantidadeAlunos)
+        .ToList();
+
+        return resultado;
+    }
+
+    public void LimparSemestre()
+    {
+        _context.Salas.RemoveRange(_context.Salas);
+        _context.Turmas.RemoveRange(_context.Turmas);
+    }
 }

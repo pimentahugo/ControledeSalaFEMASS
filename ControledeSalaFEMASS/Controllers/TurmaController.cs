@@ -74,4 +74,13 @@ public class TurmaController : ControllerBase
         return Accepted();
     }
 
+    [HttpPost("limpar-semestre")]
+    public async Task<ActionResult> LimparSemestre()
+    {
+        var command = new LimparSemestreCommand();
+
+        await _mediator.Send(command);
+
+        return Accepted();
+    }
 }
