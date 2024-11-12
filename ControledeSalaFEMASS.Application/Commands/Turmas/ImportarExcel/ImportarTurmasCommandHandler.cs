@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using ControledeSalaFEMASS.Domain.Dtos;
-using ControledeSalaFEMASS.Domain.Entities;
 using ControledeSalaFEMASS.Domain.Exceptions;
 using ControledeSalaFEMASS.Domain.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 
 namespace ControledeSalaFEMASS.Application.Commands.Importacao.Turma;
@@ -77,6 +75,8 @@ public class ImportarTurmasCommandHandler : IRequestHandler<ImportarTurmasComman
         }
 
         await _unitOfWork.Commit();
+
+        await ValidarTurmasAgrupadas();
     }
 
     private async Task<List<TurmaImportadaDto>> Validate(ImportarTurmasCommand request)
@@ -106,5 +106,33 @@ public class ImportarTurmasCommandHandler : IRequestHandler<ImportarTurmasComman
         }
 
         return turmas;
+    }
+
+    private async Task ValidarTurmasAgrupadas()
+    {
+        var existTurmaAgrupada = await _turmaRepository.ExistsTurmaAgrupada();
+
+        if (existTurmaAgrupada)
+        {
+            var turmasBanco = await _turmaRepository.GetTurmasAgrupadas();
+
+            var turmasAgrupadas = turmasBanco
+                .GroupBy(t => new { t.Professor, t.CodigoHorario })
+                .Where(g => g.Count() > 1)
+                .Select(g => new
+                {
+                    TurmaBase = g.OrderByDescending(t => t.QuantidadeAlunos).First(),
+                    TurmasAgrupadas = g.OrderByDescending(t => t.QuantidadeAlunos).Skip(1).ToList()
+                })
+                .ToList();
+
+            foreach (var grupo in turmasAgrupadas)
+            {
+                grupo.TurmaBase.TotalQuantidadeAlunosAgrupados = grupo.TurmasAgrupadas.Sum(t => t.QuantidadeAlunos) + grupo.TurmaBase.QuantidadeAlunos;
+                grupo.TurmaBase.TurmasAgrupadas = grupo.TurmasAgrupadas;
+            }
+
+            await _unitOfWork.Commit();
+        }
     }
 }

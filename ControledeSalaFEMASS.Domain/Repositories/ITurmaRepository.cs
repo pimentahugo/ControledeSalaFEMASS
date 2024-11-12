@@ -7,6 +7,8 @@ public interface ITurmaRepository
     Task<Turma?> GetById(long turmaId);
     Task<IList<AlocacaoSala>> GetAlocacoesByTurma(long turmaId);
     Task<bool> ExistsTurmaWithCodigo(string codigoTurma);
+    Task<bool> ExistsTurmaAgrupada();
+    Task<IList<Turma>> GetTurmasAgrupadas();
     Task Add(Turma turma);
     Task AddRange(List<Turma> turmas);
     void Update(Turma turma);

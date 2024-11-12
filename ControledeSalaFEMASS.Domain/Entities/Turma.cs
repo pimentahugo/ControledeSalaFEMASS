@@ -12,5 +12,7 @@ public class Turma
     public Disciplina Disciplina { get; set; }
     public int? QuantidadeAlunos { get; set; }
     public int? CodigoHorario { get; set; }
+    public List<Turma>? TurmasAgrupadas { get; set; }
+    public int? TotalQuantidadeAlunosAgrupados { get; set; }
     public List<AlocacaoSala>? Alocacoes { get; set; }
 }

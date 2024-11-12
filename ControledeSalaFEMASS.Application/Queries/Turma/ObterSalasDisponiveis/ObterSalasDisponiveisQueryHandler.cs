@@ -33,7 +33,7 @@ public class ObterSalasDisponiveisQueryHandler : IRequestHandler<ObterSalasDispo
             throw new NotFoundException("Turma não encontrada ou turma sem código de horário");
         }
 
-        var horariosDisciplina = HorariosDisciplinasService.ObterHorariosDisciplina(turma.DisciplinaId);
+        var horariosDisciplina = HorariosDisciplinasService.ObterHorariosDisciplina(turma.CodigoHorario.Value);
 
         Validate(request, horariosDisciplina);
 
