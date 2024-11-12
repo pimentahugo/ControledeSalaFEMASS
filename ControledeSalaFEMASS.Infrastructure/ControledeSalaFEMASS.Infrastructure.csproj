@@ -23,4 +23,8 @@
     <ProjectReference Include="..\ControledeSalaFEMASS.Domain\ControledeSalaFEMASS.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

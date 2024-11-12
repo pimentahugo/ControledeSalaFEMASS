@@ -162,9 +162,17 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
                     b.Property<int?>("QuantidadeAlunos")
                         .HasColumnType("int");
 
+                    b.Property<int?>("TotalQuantidadeAlunosAgrupados")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TurmaId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DisciplinaId");
+
+                    b.HasIndex("TurmaId");
 
                     b.ToTable("Turmas");
                 });
@@ -207,6 +215,10 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ControledeSalaFEMASS.Domain.Entities.Turma", null)
+                        .WithMany("TurmasAgrupadas")
+                        .HasForeignKey("TurmaId");
+
                     b.Navigation("Disciplina");
                 });
 
@@ -220,6 +232,8 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
             modelBuilder.Entity("ControledeSalaFEMASS.Domain.Entities.Turma", b =>
                 {
                     b.Navigation("Alocacoes");
+
+                    b.Navigation("TurmasAgrupadas");
                 });
 #pragma warning restore 612, 618
         }

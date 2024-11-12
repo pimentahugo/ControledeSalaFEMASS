@@ -54,7 +54,9 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
                     Professor = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     DisciplinaId = table.Column<int>(type: "int", nullable: false),
                     QuantidadeAlunos = table.Column<int>(type: "int", nullable: true),
-                    CodigoHorario = table.Column<int>(type: "int", nullable: true)
+                    CodigoHorario = table.Column<int>(type: "int", nullable: true),
+                    TotalQuantidadeAlunosAgrupados = table.Column<int>(type: "int", nullable: true),
+                    TurmaId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -65,6 +67,11 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
                         principalTable: "Disciplinas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Turmas_Turmas_TurmaId",
+                        column: x => x.TurmaId,
+                        principalTable: "Turmas",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -135,6 +142,11 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
                 name: "IX_Turmas_DisciplinaId",
                 table: "Turmas",
                 column: "DisciplinaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Turmas_TurmaId",
+                table: "Turmas",
+                column: "TurmaId");
         }
 
         /// <inheritdoc />

@@ -1,6 +1,8 @@
 using ControledeSalaFEMASS.Application;
 using ControledeSalaFEMASS.Filters;
 using ControledeSalaFEMASS.Infrastructure;
+using ControledeSalaFEMASS.Infrastructure.DataAccess;
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using System.Text.Json.Serialization;
 
@@ -35,5 +37,11 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.Run();
