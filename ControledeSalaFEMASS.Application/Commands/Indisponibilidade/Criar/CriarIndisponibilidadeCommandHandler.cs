@@ -20,7 +20,7 @@ public class CriarIndisponibilidadeCommandHandler : IRequestHandler<CriarIndispo
     {
         var indisponibilidade = _mapper.Map<Domain.Entities.Indisponibilidade>(request);
 
-        _context.Indisponibilidades.Add(indisponibilidade);
+        await _context.Indisponibilidades.AddAsync(indisponibilidade);
         await _context.SaveChangesAsync();
 
         return true;

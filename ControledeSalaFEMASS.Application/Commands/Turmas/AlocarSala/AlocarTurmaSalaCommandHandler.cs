@@ -54,7 +54,7 @@ public class AlocarTurmaSalaCommandHandler : IRequestHandler<AlocarTurmaSalaComm
             throw new NotFoundException("Sala não encontrada");
         }
 
-        var horariosDisciplina = HorariosDisciplinasService.ObterHorariosDisciplina(turma.DisciplinaId);
+        var horariosDisciplina = HorariosDisciplinasService.ObterHorariosDisciplina(turma.CodigoHorario.Value);
 
         var tempoAula = horariosDisciplina.First(h => h.Dia == request.DiaSemana).Tempo;
 
@@ -79,17 +79,6 @@ public class AlocarTurmaSalaCommandHandler : IRequestHandler<AlocarTurmaSalaComm
         {
             throw new OperationInvalidException("Já existe uma alocação feita para esta turma em uma sala. Por favor, verifique");
         }
-
-        //var salasDisponiveis = await _context.Salas
-        //   .Where(s => s.CapacidadeMaxima >= turma.QuantidadeAlunos)
-        //   .Where(s => (!turma.Disciplina.NecessitaLaboratorio || s.PossuiLaboratorio) &&
-        //               (!turma.Disciplina.NecessitaArCondicionado || s.PossuiArCondicionado) &&
-        //               (!turma.Disciplina.NecessitaLoucaDigital || s.PossuiLoucaDigital))
-        //   .Where(s => s.Alocacoes != null && !s.Alocacoes.Any(a =>
-        //       a.DiaSemana == request.DiaSemana && a.Tempo == tempoAula))
-        //   .Where(s => s.Indisponibilidades != null && !s.Indisponibilidades.Any(i =>
-        //       i.DiaSemana == request.DiaSemana && i.Tempo == tempoAula))
-        //   .ToListAsync(cancellationToken);
 
         var requestsSalasDisponiveis = new GetSalasDisponiveisDto(turma, request.DiaSemana, request.TempoSala);
 

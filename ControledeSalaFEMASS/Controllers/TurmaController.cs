@@ -1,6 +1,8 @@
 ﻿using ControledeSalaFEMASS.Application.Commands.Importacao.Turma;
 using ControledeSalaFEMASS.Application.Commands.Turmas.AlocarSala;
+using ControledeSalaFEMASS.Application.Commands.Turmas.AlocarSalasAutomaticamente;
 using ControledeSalaFEMASS.Application.Commands.Turmas.DeletarAlocacao;
+using ControledeSalaFEMASS.Application.Commands.Turmas.LimparSemestre;
 using ControledeSalaFEMASS.Application.Queries.Turma.GetAll;
 using ControledeSalaFEMASS.Application.Queries.Turma.GetTurmaById;
 using ControledeSalaFEMASS.Application.Queries.Turma.ObterSalasDisponiveis;
@@ -78,6 +80,16 @@ public class TurmaController : ControllerBase
     public async Task<ActionResult> LimparSemestre()
     {
         var command = new LimparSemestreCommand();
+
+        await _mediator.Send(command);
+
+        return Accepted();
+    }
+
+    [HttpPost("alocar-turmas-automaticamente")]
+    public async Task<IActionResult> AlocarSalasAutomaticamente()
+    {
+        var command = new AlocarSalasAutomaticamenteCommand();
 
         await _mediator.Send(command);
 
