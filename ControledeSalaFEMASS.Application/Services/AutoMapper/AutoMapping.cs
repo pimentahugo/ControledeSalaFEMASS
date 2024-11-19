@@ -40,8 +40,8 @@ public class AutoMapping : Profile
 
         CreateMap<Indisponibilidade, IndisponibilidadeDto>();
 
-        CreateMap<Turma, TurmaResponseBase>()
-            .ForMember(p => p.NomeDisciplina, config => config.MapFrom(source => source.Disciplina.Nome));
+        CreateMap<Turma, TurmaResponseBase>();
+
         CreateMap<Turma, GetAllTurmasResponse>()
             .IncludeBase<Turma, TurmaResponseBase>();
         CreateMap<Turma, GetTurmaByIdResponse>()
