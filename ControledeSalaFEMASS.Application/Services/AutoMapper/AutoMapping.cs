@@ -17,45 +17,47 @@ using ControledeSalaFEMASS.Domain.Entities;
 namespace ControledeSalaFEMASS.Application.Services.AutoMapper;
 public class AutoMapping : Profile
 {
-    public AutoMapping()
-    {
-        RequestToDomain();
-        DomainToRequest();
-    }
+	public AutoMapping()
+	{
+		RequestToDomain();
+		DomainToRequest();
+	}
 
-    private void RequestToDomain()
-    {
-        CreateMap<CriarSalaCommand, Sala>();
-        CreateMap<AtualizarSalaCommand, Sala>();
+	private void RequestToDomain()
+	{
+		CreateMap<CriarSalaCommand, Sala>();
+		CreateMap<AtualizarSalaCommand, Sala>();
 
-        CreateMap<CriarIndisponibilidadeCommand, Indisponibilidade>();
+		CreateMap<CriarIndisponibilidadeCommand, Indisponibilidade>();
 
-        CreateMap<AtualizarDisciplinaCommand, Disciplina>();
-    }
+		CreateMap<AtualizarDisciplinaCommand, Disciplina>();
+	}
 
-    private void DomainToRequest()
-    {
-        CreateMap<Sala, GetSalaByIdResponse>();
-        CreateMap<Sala, GetAllSalasResponse>();
+	private void DomainToRequest()
+	{
+		CreateMap<Sala, GetSalaByIdResponse>();
+		CreateMap<Sala, GetAllSalasResponse>();
 
-        CreateMap<Indisponibilidade, IndisponibilidadeDto>();
+		CreateMap<Indisponibilidade, IndisponibilidadeDto>();
 
-        CreateMap<Turma, TurmaResponseBase>();
+		CreateMap<Turma, TurmaResponseBase>()
+			.ForMember(dest => dest.TurmasGrandeAntiga, opt => opt.MapFrom(src => src.TurmasGradeAntiga));
 
-        CreateMap<Turma, GetAllTurmasResponse>()
-            .IncludeBase<Turma, TurmaResponseBase>();
-        CreateMap<Turma, GetTurmaByIdResponse>()
-            .IncludeBase<Turma, TurmaResponseBase>();
+		CreateMap<Turma, GetAllTurmasResponse>()
+			.IncludeBase<Turma, TurmaResponseBase>();
 
-        CreateMap<AlocacaoSala, AlocacaoDto>();
-            //.ForMember(p => p.CodigoTurma, config => config.MapFrom(source => source.Turma.CodigoTurma));
+		CreateMap<Turma, GetTurmaByIdResponse>()
+			.IncludeBase<Turma, TurmaResponseBase>()
+			.ForMember(dest => dest.IsGradeAntiga, opt => opt.MapFrom(src => src.TurmaId.HasValue));
 
-        CreateMap<Disciplina, DisciplinaBaseResponse>();
+		CreateMap<AlocacaoSala, AlocacaoDto>();
 
-        CreateMap<Disciplina, GetAllDisciplinaResponse>()
-            .IncludeBase<Disciplina, DisciplinaBaseResponse>();
+		CreateMap<Disciplina, DisciplinaBaseResponse>();
 
-        CreateMap<Disciplina, GetDisciplinaByIdResponse>()
-            .IncludeBase<Disciplina, DisciplinaBaseResponse>();
-    }
+		CreateMap<Disciplina, GetAllDisciplinaResponse>()
+			.IncludeBase<Disciplina, DisciplinaBaseResponse>();
+
+		CreateMap<Disciplina, GetDisciplinaByIdResponse>()
+			.IncludeBase<Disciplina, DisciplinaBaseResponse>();
+	}
 }

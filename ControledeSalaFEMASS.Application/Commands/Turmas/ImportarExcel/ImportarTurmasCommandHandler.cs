@@ -11,18 +11,15 @@ public class ImportarTurmasCommandHandler : IRequestHandler<ImportarTurmasComman
     private readonly ITurmaRepository _turmaRepository;
     private readonly IDisciplinaRepository _disciplinaRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
 
     public ImportarTurmasCommandHandler(
         ITurmaRepository turmaRepository, 
         IDisciplinaRepository disciplinaRepository, 
-        IUnitOfWork unitOfWork, 
-        IMapper mapper)
+        IUnitOfWork unitOfWork)
     {
         _turmaRepository = turmaRepository;
         _disciplinaRepository = disciplinaRepository;
         _unitOfWork = unitOfWork;
-        _mapper = mapper;
     }
 
     public async Task Handle(ImportarTurmasCommand request, CancellationToken cancellationToken)
@@ -36,6 +33,13 @@ public class ImportarTurmasCommandHandler : IRequestHandler<ImportarTurmasComman
 
         foreach (var turmaExcel in turmasExcel)
         {
+            int idTurma = int.TryParse(turmaExcel.CodigoTurma, out int temp) ? temp : 0;
+
+            if(idTurma == 0)
+            {
+                throw new ErrorOnValidationException("Há turmas com código de turma inválido. Por favor, verifique.");
+            }
+
             var disciplina = disciplinas.FirstOrDefault(d => d.Nome.Equals(turmaExcel.Disciplina, StringComparison.CurrentCultureIgnoreCase));
 
             if (disciplina is null)
@@ -44,15 +48,14 @@ public class ImportarTurmasCommandHandler : IRequestHandler<ImportarTurmasComman
                 await _disciplinaRepository.Add(disciplina);
             }
 
-            var turmaBanco = turmasBanco.FirstOrDefault(p => p.CodigoTurma.Equals(turmaExcel.CodigoTurma));
+            var turmaBanco = turmasBanco.FirstOrDefault(p => p.Id == idTurma);
 
             if(turmaBanco is null)
             {
                 var turma = new Domain.Entities.Turma
                 {
-                    CodigoTurma = turmaExcel.CodigoTurma,
+                    Id = idTurma,
                     Professor = turmaExcel.Professor,
-                    //DisciplinaId = disciplina.Id,
                     Disciplina = disciplina,
                     QuantidadeAlunos = turmaExcel.QuantidadeAlunos,
                     CodigoHorario = turmaExcel.CodigoHorario
@@ -95,14 +98,19 @@ public class ImportarTurmasCommandHandler : IRequestHandler<ImportarTurmasComman
 
         for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
         {
-            turmas.Add(new TurmaImportadaDto
+            string codigoTurma = worksheet.Cells[row, 1].Text;
+
+            if(!string.IsNullOrEmpty(codigoTurma))
             {
-                CodigoTurma = worksheet.Cells[row, 1].Text,
-                Professor = worksheet.Cells[row, 2].Text,
-                Disciplina = worksheet.Cells[row, 3].Text,
-                QuantidadeAlunos = int.TryParse(worksheet.Cells[row, 4].Text, out int temp) ? temp : 0,
-                CodigoHorario = int.TryParse(worksheet.Cells[row, 5].Text, out int temp2) ? temp2 : 0,
-            });
+				turmas.Add(new TurmaImportadaDto
+				{
+					CodigoTurma = codigoTurma,
+					Professor = worksheet.Cells[row, 2].Text,
+					Disciplina = worksheet.Cells[row, 3].Text,
+					QuantidadeAlunos = int.TryParse(worksheet.Cells[row, 4].Text, out int temp) ? temp : 0,
+					CodigoHorario = int.TryParse(worksheet.Cells[row, 5].Text, out int temp2) ? temp2 : 0,
+				});
+			}
         }
 
         return turmas;
@@ -129,7 +137,7 @@ public class ImportarTurmasCommandHandler : IRequestHandler<ImportarTurmasComman
             foreach (var grupo in turmasAgrupadas)
             {
                 grupo.TurmaBase.TotalQuantidadeAlunosAgrupados = grupo.TurmasAgrupadas.Sum(t => t.QuantidadeAlunos) + grupo.TurmaBase.QuantidadeAlunos;
-                grupo.TurmaBase.TurmasAgrupadas = grupo.TurmasAgrupadas;
+                grupo.TurmaBase.TurmasGradeAntiga = grupo.TurmasAgrupadas;
             }
 
             await _unitOfWork.Commit();

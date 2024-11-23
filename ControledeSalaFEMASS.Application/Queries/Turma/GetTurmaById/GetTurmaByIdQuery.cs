@@ -1,5 +1,4 @@
-﻿using ControledeSalaFEMASS.Domain.Dtos;
-using MediatR;
+﻿using MediatR;
 
 namespace ControledeSalaFEMASS.Application.Queries.Turma.GetTurmaById;
 public class GetTurmaByIdQuery : IRequest<GetTurmaByIdResponse>

@@ -3,7 +3,7 @@
 namespace ControledeSalaFEMASS.Domain.Services;
 public static class HorariosDisciplinasService
 {
-    public static readonly Dictionary<int, List<(DayOfWeek Dia, TempoSala Tempo)>> Mapeamento = new Dictionary<int, List<(DayOfWeek, TempoSala)>>
+    private static readonly Dictionary<int, List<(DayOfWeek Dia, TempoSala Tempo)>> _mapeamento = new Dictionary<int, List<(DayOfWeek, TempoSala)>>
     {
         {1, new List<(DayOfWeek, TempoSala)> {(DayOfWeek.Monday, TempoSala.Tempo1), (DayOfWeek.Tuesday, TempoSala.Tempo2)}},
         {2, new List<(DayOfWeek, TempoSala)> {(DayOfWeek.Monday, TempoSala.Tempo2), (DayOfWeek.Tuesday, TempoSala.Tempo1)}},
@@ -15,7 +15,7 @@ public static class HorariosDisciplinasService
 
     public static List<(DayOfWeek Dia, TempoSala Tempo)> ObterHorariosDisciplina(int ordemDisciplina)
     {
-        if (Mapeamento.TryGetValue(ordemDisciplina, out var horarios))
+        if (_mapeamento.TryGetValue(ordemDisciplina, out var horarios))
         {
             return horarios;
         }

@@ -45,7 +45,7 @@ public class SalaRepository : ISalaRepository
     public async Task<IList<Sala>> GetSalasDisponiveisParaAlocacao(GetSalasDisponiveisDto request)
     {
         var salasBasicas = await _context.Salas
-                    .Where(sala => ((request.Turma.TotalQuantidadeAlunosAgrupados.HasValue && sala.CapacidadeMaxima >= request.Turma.TotalQuantidadeAlunosAgrupados) || sala.CapacidadeMaxima >= request.Turma.QuantidadeAlunos) &&
+                    .Where(sala => ((request.Turma.TotalQuantidadeAlunosAgrupados.HasValue && sala.CapacidadeMaxima >= request.Turma.TotalQuantidadeAlunosAgrupados) || !request.Turma.TotalQuantidadeAlunosAgrupados.HasValue && sala.CapacidadeMaxima >= request.Turma.QuantidadeAlunos) &&
                       !sala.Alocacoes.Any(aloc => aloc.DiaSemana == request.DiaSemana && aloc.Tempo == request.TempoSala) &&
                       !sala.Indisponibilidades.Any(indis => indis.DiaSemana == request.DiaSemana && indis.Tempo == request.TempoSala))
                     .ToListAsync();

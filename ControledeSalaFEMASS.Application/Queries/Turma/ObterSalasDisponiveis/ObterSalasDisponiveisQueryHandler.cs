@@ -33,6 +33,11 @@ public class ObterSalasDisponiveisQueryHandler : IRequestHandler<ObterSalasDispo
             throw new NotFoundException("Turma não encontrada ou turma sem código de horário");
         }
 
+        if(turma.TurmaId.HasValue)
+        {
+            throw new OperationInvalidException($"Não é possível alocar uma turma da grade antiga. Por favor, utilize a turma {turma.TurmaId} como base");
+        }
+
         var horariosDisciplina = HorariosDisciplinasService.ObterHorariosDisciplina(turma.CodigoHorario.Value);
 
         Validate(request, horariosDisciplina);

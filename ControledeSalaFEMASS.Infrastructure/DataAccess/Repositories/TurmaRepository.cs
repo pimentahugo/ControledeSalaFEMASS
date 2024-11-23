@@ -15,8 +15,11 @@ internal class TurmaRepository : ITurmaRepository
     public async Task<IList<Turma>> GetAll()
     {
         return await _context.Turmas
-                     .Include(p => p.Disciplina)
-                     .ToListAsync();
+				.Include(t => t.Disciplina)
+				.Include(t => t.Alocacoes)
+				.Include(t => t.TurmasGradeAntiga)
+				.Where(t => !t.TurmaId.HasValue)
+				.ToListAsync();;
     }
 
     public async Task<IList<AlocacaoSala>> GetAlocacoesByTurma(long turmaId)
@@ -29,6 +32,7 @@ internal class TurmaRepository : ITurmaRepository
         return await _context.Turmas
             .Include(t => t.Disciplina)
             .Include(t => t.Alocacoes)
+			.Include(t => t.TurmasGradeAntiga)
             .FirstOrDefaultAsync(turma => turma.Id == turmaId);
     }
 
@@ -42,9 +46,9 @@ internal class TurmaRepository : ITurmaRepository
         await _context.Turmas.AddAsync(turma);
     }
 
-    public async Task<bool> ExistsTurmaWithCodigo(string codigoTurma)
+	public async Task<bool> ExistsTurmaWithCodigo(int codigoTurma)
     {
-        return await _context.Turmas.AnyAsync(turma => turma.CodigoTurma.Equals(codigoTurma));
+		return await _context.Turmas.AnyAsync(turma => turma.Id == codigoTurma);
     }
 
     public async Task AddRange(List<Turma> turmas)

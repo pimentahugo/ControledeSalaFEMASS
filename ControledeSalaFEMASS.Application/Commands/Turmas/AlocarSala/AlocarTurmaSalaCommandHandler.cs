@@ -1,11 +1,9 @@
-﻿using AutoMapper;
-using ControledeSalaFEMASS.Domain.Dtos;
+﻿using ControledeSalaFEMASS.Domain.Dtos;
 using ControledeSalaFEMASS.Domain.Entities;
 using ControledeSalaFEMASS.Domain.Exceptions;
 using ControledeSalaFEMASS.Domain.Repositories;
 using ControledeSalaFEMASS.Domain.Services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace ControledeSalaFEMASS.Application.Commands.Turmas.AlocarSala;
 public class AlocarTurmaSalaCommandHandler : IRequestHandler<AlocarTurmaSalaCommand, AlocarTurmaSalaResponse>
@@ -13,18 +11,15 @@ public class AlocarTurmaSalaCommandHandler : IRequestHandler<AlocarTurmaSalaComm
     private readonly ISalaRepository _salaRepository;
     private readonly ITurmaRepository _turmaRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
 
     public AlocarTurmaSalaCommandHandler(
         ISalaRepository salaRepository, 
         ITurmaRepository turmaRepository,
-        IUnitOfWork unitOfWork, 
-        IMapper mapper)
+        IUnitOfWork unitOfWork)
     {
         _salaRepository = salaRepository;
         _turmaRepository = turmaRepository;
         _unitOfWork = unitOfWork;
-        _mapper = mapper;
     }
 
     public async Task<AlocarTurmaSalaResponse> Handle(AlocarTurmaSalaCommand request, CancellationToken cancellationToken)
@@ -47,11 +42,21 @@ public class AlocarTurmaSalaCommandHandler : IRequestHandler<AlocarTurmaSalaComm
             throw new NotFoundException("A turma informada não foi encontrada em nossa base de dados");
         }
 
-        var sala = await _salaRepository.GetById(request.SalaId);
+		if (turma.TurmaId.HasValue)
+		{
+			throw new OperationInvalidException($"Não é possível alocar uma turma da grade antiga. Por favor, utilize a turma {turma.TurmaId} como base");
+		}
+
+		var sala = await _salaRepository.GetById(request.SalaId);
 
         if (sala == null)
         {
             throw new NotFoundException("Sala não encontrada");
+        }
+
+        if(!turma.CodigoHorario.HasValue)
+        {
+            throw new OperationInvalidException("A turma informada não possui um código de horário");
         }
 
         var horariosDisciplina = HorariosDisciplinasService.ObterHorariosDisciplina(turma.CodigoHorario.Value);

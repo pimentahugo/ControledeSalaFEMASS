@@ -19,6 +19,7 @@ public class GetAllTurmasQueryHandler : IRequestHandler<GetAllTurmasQuery, List<
     {
         var turmas = await _context.GetAll();
 
+
         return _mapper.Map<List<GetAllTurmasResponse>>(turmas);
     }
 }

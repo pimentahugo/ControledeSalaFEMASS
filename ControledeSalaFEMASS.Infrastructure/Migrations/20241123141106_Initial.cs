@@ -48,15 +48,13 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
                 name: "Turmas",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CodigoTurma = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: false),
-                    Professor = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    Professor = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DisciplinaId = table.Column<int>(type: "int", nullable: false),
                     QuantidadeAlunos = table.Column<int>(type: "int", nullable: true),
                     CodigoHorario = table.Column<int>(type: "int", nullable: true),
-                    TotalQuantidadeAlunosAgrupados = table.Column<int>(type: "int", nullable: true),
-                    TurmaId = table.Column<int>(type: "int", nullable: true)
+                    TurmaId = table.Column<int>(type: "int", nullable: true),
+                    TotalQuantidadeAlunosAgrupados = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {

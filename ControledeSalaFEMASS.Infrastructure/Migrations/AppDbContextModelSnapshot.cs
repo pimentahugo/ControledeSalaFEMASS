@@ -138,26 +138,17 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
             modelBuilder.Entity("ControledeSalaFEMASS.Domain.Entities.Turma", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("CodigoHorario")
                         .HasColumnType("int");
-
-                    b.Property<string>("CodigoTurma")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
 
                     b.Property<int>("DisciplinaId")
                         .HasColumnType("int");
 
                     b.Property<string>("Professor")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("QuantidadeAlunos")
                         .HasColumnType("int");
@@ -216,7 +207,7 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ControledeSalaFEMASS.Domain.Entities.Turma", null)
-                        .WithMany("TurmasAgrupadas")
+                        .WithMany("TurmasGradeAntiga")
                         .HasForeignKey("TurmaId");
 
                     b.Navigation("Disciplina");
@@ -233,7 +224,7 @@ namespace ControledeSalaFEMASS.Infrastructure.Migrations
                 {
                     b.Navigation("Alocacoes");
 
-                    b.Navigation("TurmasAgrupadas");
+                    b.Navigation("TurmasGradeAntiga");
                 });
 #pragma warning restore 612, 618
         }
