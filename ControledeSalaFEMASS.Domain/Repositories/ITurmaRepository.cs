@@ -9,6 +9,7 @@ public interface ITurmaRepository
     Task<bool> ExistsTurmaWithCodigo(int codigoTurma);
     Task<bool> ExistsTurmaAgrupada();
     Task<IList<Turma>> GetTurmasAgrupadas();
+    Task<IList<AlocacaoSala>> GetAlocacoesByDay(DayOfWeek dayOfWeek);
     Task Add(Turma turma);
     Task AddRange(List<Turma> turmas);
     void Update(Turma turma);

@@ -1,9 +1,12 @@
 ﻿using ControledeSalaFEMASS.Domain.Repositories;
+using ControledeSalaFEMASS.Domain.Services.QuestPDF;
 using ControledeSalaFEMASS.Infrastructure.DataAccess;
 using ControledeSalaFEMASS.Infrastructure.DataAccess.Repositories;
+using ControledeSalaFEMASS.Infrastructure.Services.QuestPDF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using QuestPDF.Infrastructure;
 
 namespace ControledeSalaFEMASS.Infrastructure;
 public static class DependencyInjectionExtension
@@ -12,9 +15,16 @@ public static class DependencyInjectionExtension
     {
         AddDbContext(services, configuration);
         AddRepositories(services);
+        AddQuestPDF(services);
     }
 
-    private static void AddRepositories(IServiceCollection services)
+	private static void AddQuestPDF(IServiceCollection services)
+	{
+		QuestPDF.Settings.License = LicenseType.Community;
+		services.AddScoped<IDocumentGenerator, DocumentGenerator>();
+	}
+
+	private static void AddRepositories(IServiceCollection services)
     {
         services.AddScoped<ISalaRepository, SalaRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();

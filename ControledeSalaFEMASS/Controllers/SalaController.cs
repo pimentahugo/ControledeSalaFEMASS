@@ -3,6 +3,7 @@ using ControledeSalaFEMASS.Application.Commands.Indisponibilidade.Excluir;
 using ControledeSalaFEMASS.Application.Commands.Sala.Atualizar;
 using ControledeSalaFEMASS.Application.Commands.Sala.Criar;
 using ControledeSalaFEMASS.Application.Queries.Sala.GetAll;
+using ControledeSalaFEMASS.Application.Queries.Sala.GetSalasDocumentByDay;
 using ControledeSalaFEMASS.Application.Queries.Sala.ObterPorId;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -76,4 +77,16 @@ public class SalaController : ControllerBase
         await _mediator.Send(command);
         return NoContent();
     }
+
+    [HttpGet("relatorio/{diaSemana}")]
+    public async Task<IActionResult> GerarDocumentoSalas(
+        DayOfWeek diaSemana)
+    {
+        var command = new GetSalasDocumentByDayQuery(diaSemana);
+
+        var document = await _mediator.Send(command);
+
+        return File(document, "application/pdf", $"Relatorio_Salas_{diaSemana}.pdf");
+
+	}
 }
