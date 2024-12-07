@@ -1,5 +1,5 @@
 # Sobre:
-O projeto consiste numa aplicação com interface gráfica no navegador web (front-end) com chamadas API para o back-end, ambos sendo executados de forma local. Este documento detalha as etapas de configuração e execução do sistema, além de descrever os componentes utilizados no back-end e front-end.
+O projeto consiste numa aplicação com interface gráfica no navegador web (front-end) com chamadas API para o back-end, ambos sendo executados de forma local.
 
 Projeto requisitado pelo professor de Desenvolvimento de Sistemas I como requisito para conclusão de disciplina.
 
